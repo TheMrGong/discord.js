@@ -3,6 +3,7 @@
 const AsyncQueue = require('./AsyncQueue');
 const DiscordAPIError = require('./DiscordAPIError');
 const HTTPError = require('./HTTPError');
+const RateLimitError = require('./RateLimitError');
 const {
   Events: { RATE_LIMIT, INVALID_REQUEST_WARNING },
 } = require('../util/Constants');
@@ -101,6 +102,10 @@ class RequestHandler {
         limit = this.limit;
         timeout = this.reset + this.manager.client.options.restTimeOffset - Date.now();
         delayPromise = Util.delayFor(timeout);
+      }
+
+      if (request.options.noRequeueOnRatelimit) {
+        throw new RateLimitError(timeout);
       }
 
       if (this.manager.client.listenerCount(RATE_LIMIT)) {
@@ -228,6 +233,9 @@ class RequestHandler {
         // If caused by a sublimit, wait it out here so other requests on the route can be handled
         if (sublimitTimeout) {
           await Util.delayFor(sublimitTimeout);
+        }
+        if (request.options.noRequeueOnRatelimit) {
+          throw new RateLimitError(this.manager.globalReset - Date.now());
         }
         return this.execute(request);
       }

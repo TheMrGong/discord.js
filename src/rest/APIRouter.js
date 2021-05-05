@@ -13,6 +13,8 @@ const reflectors = [
 
 function buildRoute(manager) {
   const route = [''];
+  let noRequeueOnRatelimit = false;
+  let noRequeuePending = false;
   const handler = {
     get(target, name) {
       if (reflectors.includes(name)) return () => route.join('/');
@@ -30,6 +32,7 @@ function buildRoute(manager) {
           manager.request(
             name,
             route.join('/'),
+            noRequeueOnRatelimit,
             Object.assign(
               {
                 versioned: manager.versioned,
@@ -43,7 +46,14 @@ function buildRoute(manager) {
       return new Proxy(noop, handler);
     },
     apply(target, _, args) {
-      route.push(...args.filter(x => x != null)); // eslint-disable-line eqeqeq
+      if (noRequeuePending) {
+        if (args.length === 1 && typeof args[0] === 'boolean') {
+          noRequeueOnRatelimit = args[0];
+        }
+        noRequeuePending = false;
+      } else {
+        route.push(...args.filter(x => x != null)); // eslint-disable-line eqeqeq
+      }
       return new Proxy(noop, handler);
     },
   };

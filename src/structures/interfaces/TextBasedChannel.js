@@ -162,6 +162,7 @@ class TextBasedChannel {
 
     const { data, files } = await apiMessage.resolveFiles();
     return this.client.api.channels[this.id].messages
+      .noRequeue(options && options.noRequeue)
       .post({ data, files })
       .then(d => this.client.actions.MessageCreate.handle(d).message);
   }

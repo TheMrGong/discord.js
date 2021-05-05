@@ -684,7 +684,7 @@ declare module 'discord.js' {
     public createTemplate(name: string, description?: string): Promise<GuildTemplate>;
     public delete(): Promise<Guild>;
     public discoverySplashURL(options?: ImageURLOptions): string | null;
-    public edit(data: GuildEditData, reason?: string): Promise<Guild>;
+    public edit(data: GuildEditData, reason?: string, options?: NoRequeueOption): Promise<Guild>;
     public equals(guild: Guild): boolean;
     public fetch(): Promise<Guild>;
     public fetchAuditLogs(options?: GuildAuditLogsFetchOptions): Promise<GuildAuditLogs>;
@@ -714,7 +714,7 @@ declare module 'discord.js' {
       explicitContentFilter: ExplicitContentFilterLevel | number,
       reason?: string,
     ): Promise<Guild>;
-    public setIcon(icon: Base64Resolvable | null, reason?: string): Promise<Guild>;
+    public setIcon(icon: Base64Resolvable | null, reason?: string, options?: NoRequeueOption): Promise<Guild>;
     public setName(name: string, reason?: string): Promise<Guild>;
     public setOwner(owner: GuildMemberResolvable, reason?: string): Promise<Guild>;
     public setPreferredLocale(preferredLocale: string, reason?: string): Promise<Guild>;
@@ -1378,7 +1378,7 @@ declare module 'discord.js' {
     public eval<T>(fn: (client: Client) => T): Promise<T[]>;
     public fetchClientValue(prop: string): Promise<any>;
     public kill(): void;
-    public respawn(options?: { delay?: number, timeout?: number }): Promise<ChildProcess>;
+    public respawn(options?: { delay?: number; timeout?: number }): Promise<ChildProcess>;
     public send(message: any): Promise<Shard>;
     public spawn(timeout?: number): Promise<ChildProcess>;
 
@@ -1411,7 +1411,7 @@ declare module 'discord.js' {
     public broadcastEval<T>(fn: (client: Client) => T, shard: number): Promise<T>;
     public fetchClientValues(prop: string): Promise<any[]>;
     public fetchClientValues(prop: string, shard: number): Promise<any>;
-    public respawnAll(options?: { shardDelay?: number, respawnDelay?: number, timeout?: number }): Promise<void>;
+    public respawnAll(options?: { shardDelay?: number; respawnDelay?: number; timeout?: number }): Promise<void>;
     public send(message: any): Promise<void>;
 
     public static singleton(client: Client, mode: ShardingManagerMode): ShardClientUtil;
@@ -1448,11 +1448,15 @@ declare module 'discord.js' {
     public fetchClientValues(prop: string): Promise<any[]>;
     public fetchClientValues(prop: string, shard: number): Promise<any>;
     public respawnAll(options?: {
-      shardDelay?: number,
-      respawnDelay?: number,
-      timeout?: number,
+      shardDelay?: number;
+      respawnDelay?: number;
+      timeout?: number;
     }): Promise<Collection<number, Shard>>;
-    public spawn(options?: { amount?: number | 'auto', delay?: number, timeout?: number }): Promise<Collection<number, Shard>>;
+    public spawn(options?: {
+      amount?: number | 'auto';
+      delay?: number;
+      timeout?: number;
+    }): Promise<Collection<number, Shard>>;
 
     public on(event: 'shardCreate', listener: (shard: Shard) => void): this;
 
@@ -2125,17 +2129,24 @@ declare module 'discord.js' {
     ignore?: I[],
   ): Constructable<T & Omit<TextBasedChannelFields, I>>;
 
+  type NoRequeueOption = { noRequeue?: boolean };
   interface PartialTextBasedChannelFields {
     lastMessageID: Snowflake | null;
     readonly lastMessage: Message | null;
     send(
-      content: APIMessageContentResolvable | (MessageOptions & { split?: false }) | MessageAdditions,
+      content: APIMessageContentResolvable | (MessageOptions & NoRequeueOption & { split?: false }) | MessageAdditions,
     ): Promise<Message>;
-    send(options: MessageOptions & { split: true | SplitOptions }): Promise<Message[]>;
-    send(options: MessageOptions | APIMessage): Promise<Message | Message[]>;
-    send(content: StringResolvable, options: (MessageOptions & { split?: false }) | MessageAdditions): Promise<Message>;
-    send(content: StringResolvable, options: MessageOptions & { split: true | SplitOptions }): Promise<Message[]>;
-    send(content: StringResolvable, options: MessageOptions): Promise<Message | Message[]>;
+    send(options: MessageOptions & NoRequeueOption & { split: true | SplitOptions }): Promise<Message[]>;
+    send(options: (MessageOptions & NoRequeueOption) | APIMessage): Promise<Message | Message[]>;
+    send(
+      content: StringResolvable,
+      options: (MessageOptions & NoRequeueOption & { split?: false }) | MessageAdditions,
+    ): Promise<Message>;
+    send(
+      content: StringResolvable,
+      options: MessageOptions & NoRequeueOption & { split: true | SplitOptions },
+    ): Promise<Message[]>;
+    send(content: StringResolvable, options: MessageOptions & NoRequeueOption): Promise<Message | Message[]>;
   }
 
   interface TextBasedChannelFields extends PartialTextBasedChannelFields {

@@ -965,6 +965,7 @@ class Guild extends Base {
    * Updates the guild with new information - e.g. a new name.
    * @param {GuildEditData} data The data to update the guild with
    * @param {string} [reason] Reason for editing this guild
+   * @param {NoRequeueOption}  [options] Options for editing this guild
    * @returns {Promise<Guild>}
    * @example
    * // Set the guild name and region
@@ -975,7 +976,7 @@ class Guild extends Base {
    *   .then(updated => console.log(`New guild name ${updated} in region ${updated.region}`))
    *   .catch(console.error);
    */
-  edit(data, reason) {
+  edit(data, reason, options) {
     const _data = {};
     if (data.name) _data.name = data.name;
     if (data.region) _data.region = data.region;
@@ -1026,6 +1027,7 @@ class Guild extends Base {
     }
     if (data.preferredLocale) _data.preferred_locale = data.preferredLocale;
     return this.client.api
+      .noRequeue(options && options.noRequeue)
       .guilds(this.id)
       .patch({ data: _data, reason })
       .then(newData => this.client.actions.GuildUpdate.handle(newData).updated);
@@ -1157,6 +1159,8 @@ class Guild extends Base {
    * Sets a new guild icon.
    * @param {Base64Resolvable|BufferResolvable} icon The new icon of the guild
    * @param {string} [reason] Reason for changing the guild's icon
+   * @param {NoRequeueOption} [options] Options for setting this icon
+   *
    * @returns {Promise<Guild>}
    * @example
    * // Edit the guild icon
@@ -1164,8 +1168,8 @@ class Guild extends Base {
    *  .then(updated => console.log('Updated the guild icon'))
    *  .catch(console.error);
    */
-  async setIcon(icon, reason) {
-    return this.edit({ icon: await DataResolver.resolveImage(icon) }, reason);
+  async setIcon(icon, reason, options) {
+    return this.edit({ icon: await DataResolver.resolveImage(icon) }, reason, options);
   }
 
   /**
