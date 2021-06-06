@@ -2486,7 +2486,9 @@ declare module 'discord.js' {
     ignore?: I[],
   ): Constructable<T & Omit<TextBasedChannelFields, I>>;
 
-  type NoRequeueOption = { noRequeue?: boolean };
+  interface NoRequeueOption {
+    noRequeue?: boolean;
+  }
   interface PartialTextBasedChannelFields {
     lastMessageID: Snowflake | null;
     readonly lastMessage: Message | null;
