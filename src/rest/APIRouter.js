@@ -32,11 +32,11 @@ function buildRoute(manager) {
           manager.request(
             name,
             route.join('/'),
-            noRequeueOnRatelimit,
             Object.assign(
               {
                 versioned: manager.versioned,
                 route: routeBucket.join('/'),
+                noRequeueOnRatelimit,
               },
               options,
             ),
