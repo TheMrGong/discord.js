@@ -232,6 +232,9 @@ class RequestHandler {
         this.manager.client.emit('debug', `429 hit on route ${request.route}${sublimitTimeout ? ' for sublimit' : ''}`);
         // If caused by a sublimit, wait it out here so other requests on the route can be handled
         if (sublimitTimeout) {
+          if (request.options.noRequeueOnRatelimit) {
+            throw new RateLimitError(sublimitTimeout);
+          }
           await Util.delayFor(sublimitTimeout);
         }
         if (request.options.noRequeueOnRatelimit) {
