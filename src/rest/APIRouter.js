@@ -17,6 +17,10 @@ function buildRoute(manager) {
   let noRequeuePending = false;
   const handler = {
     get(target, name) {
+      if (name === `noRequeue`) {
+        noRequeuePending = true;
+        return new Proxy(noop, handler);
+      }
       if (reflectors.includes(name)) return () => route.join('/');
       if (methods.includes(name)) {
         const routeBucket = [];
