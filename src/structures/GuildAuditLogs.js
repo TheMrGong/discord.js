@@ -416,7 +416,7 @@ class GuildAuditLogsEntry {
      * @type {?AuditLogEntryTarget}
      */
     this.target = null;
-    if (targetType === Targets.UNKNOWN) {
+    if (targetType === Targets.UNKNOWN && this.changes) {
       this.target = this.changes.reduce((o, c) => {
         o[c.key] = c.new || c.old;
         return o;
