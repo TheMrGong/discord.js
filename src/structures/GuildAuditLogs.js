@@ -416,12 +416,14 @@ class GuildAuditLogsEntry {
      * @type {?AuditLogEntryTarget}
      */
     this.target = null;
-    if (targetType === Targets.UNKNOWN && this.changes) {
-      this.target = this.changes.reduce((o, c) => {
-        o[c.key] = c.new || c.old;
-        return o;
-      }, {});
-      this.target.id = data.target_id;
+    if (targetType === Targets.UNKNOWN) {
+      if (this.changes) {
+        this.target = this.changes.reduce((o, c) => {
+          o[c.key] = c.new || c.old;
+          return o;
+        }, {});
+        this.target.id = data.target_id;
+      }
       // MEMBER_DISCONNECT and similar types do not provide a target_id.
     } else if (targetType === Targets.USER && data.target_id) {
       this.target = guild.client.options.partials.includes(PartialTypes.USER)
