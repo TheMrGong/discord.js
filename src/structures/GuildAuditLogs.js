@@ -483,7 +483,10 @@ class GuildAuditLogsEntry {
           guild,
         );
     } else if (data.target_id) {
-      this.target = guild[`${targetType.toLowerCase()}s`].cache.get(data.target_id) || { id: data.target_id };
+      let targetGuildCaches = guild[`${targetType.toLowerCase()}s`];
+      if (targetGuildCaches) {
+        this.target = targetGuildCaches.cache.get(data.target_id) || { id: data.target_id };
+      }
     }
   }
 
